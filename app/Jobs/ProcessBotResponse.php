@@ -2,19 +2,23 @@
 
 namespace App\Jobs;
 
+use App\ICommands\SendMessage;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ProcessBotResponse implements ShouldQueue
 {
     use Queueable;
 
-    private string $token;
+    public int $timeout = 180;
+    public int $tries = 10;
     /**
      * Create a new job instance.
      * @param int $chatId
@@ -22,22 +26,22 @@ class ProcessBotResponse implements ShouldQueue
      */
     public function __construct(private readonly int $chatId, private readonly string $message)
     {
-        $this->token = env('BOT_TOKEN');
     }
 
     /**
-     * Execute the job.
+     * @throws Exception
      */
     public function handle(): void
     {
         try {
-        $client = new Client();
-        $res = $client->post(
-            "https://api.telegram.org/bot{$this->token}/sendMessage",
-            ["form_params" => ["chat_id" => $this->chatId, "text" => $this->message, "parse_mode" => "html"]],
-        );
+            $sendMessage = SendMessage::create($this->chatId, $this->message);
+            $res = $sendMessage->execute();
+            if (!$res->isSuccess()) {
+                // В случае неудачи на отправку дается 10 попыток с задержкой в 2 минуты
+                $this->release(120);
+            }
         } catch (Exception $e) {
-
+            $this->release(120);
         }
     }
 }
