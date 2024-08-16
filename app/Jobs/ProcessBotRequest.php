@@ -3,6 +3,9 @@
 namespace App\Jobs;
 
 use App\Http\Requests\BotRequest;
+use App\ICommands\BotHelpCommand;
+use App\ICommands\BotStartCommand;
+use App\Interfaces\ICommand;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -15,11 +18,16 @@ class ProcessBotRequest implements ShouldQueue
     use Queueable;
 
     /**
+     * @var ICommand[]
+     */
+    private array $botCommands;
+
+    /**
      * Create a new job instance.
      */
     public function __construct(private readonly array $botRequest)
     {
-        //
+        $this->botCommands['/help'] = BotHelpCommand::class;
     }
 
     public function middleware(): array
@@ -32,6 +40,8 @@ class ProcessBotRequest implements ShouldQueue
      */
     public function handle(): void
     {
-        ProcessBotResponse::dispatch($this->botRequest['message']['chat']['id'], "Test");
+        $commandClass = $this->botCommands[$this->botRequest['message']['text']] ??  BotStartCommand::class;
+        $command = new $commandClass($this->botRequest['message']['chat']['id']);
+        $command->execute();
     }
 }
