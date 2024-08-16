@@ -32,14 +32,13 @@ class SendMessage implements ICommand
      */
     public static function create(int $chatId, string $message): self
     {
-        $client = new Client();
+        $client = new Client(['timeout' => 60]);
         $token = env('BOT_TOKEN', '');
         return new self($chatId, $message, $token, $client);
     }
 
     /**
      * @return CommandResult
-     * @throws GuzzleException
      */
     public function execute(): CommandResult
     {
@@ -50,6 +49,8 @@ class SendMessage implements ICommand
             );
             return new CommandResult(true);
         } catch (Exception $e) {
+            return new CommandResult(false, $e->getMessage());
+        } catch (GuzzleException $e) {
             return new CommandResult(false, $e->getMessage());
         }
     }
