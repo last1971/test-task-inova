@@ -7,6 +7,7 @@ use App\ICommands\BotHelpCommand;
 use App\ICommands\BotStartCommand;
 use App\ICommands\CreateTelegramMessage;
 use App\Interfaces\ICommand;
+use App\Models\TelegramNextCommand;
 use App\Models\TelegramMessage;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -34,15 +35,18 @@ class ProcessBotRequest implements ShouldQueue
     public function __construct(private readonly int $id)
     {
         $this->botCommands['/help'] = BotHelpCommand::class;
+        $this->botCommands['/start'] = BotStartCommand::class;
     }
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-       $telegramMessage = TelegramMessage::query()->with('telegramChat')->find($this->id);
-       $commandClass = $this->botCommands[$telegramMessage->text] ?? BotStartCommand::class;
-       $command = new $commandClass($telegramMessage);
-       $command->execute();
+       $telegramMessage = TelegramMessage::query()->with('telegramChat', 'telegramUser')->find($this->id);
+       $commandClass = $this->botCommands[$telegramMessage->text];
+       if ($commandClass) {
+           $command = new $commandClass($telegramMessage);
+           $command->execute();
+       }
     }
 }
