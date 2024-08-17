@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('username');
-            $table->string('language-code');
+            $table->string('language_code');
             $table->boolean('is_premium');
             $table->timestamps();
         });

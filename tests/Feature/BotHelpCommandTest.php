@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\ICommands\BotHelpCommand;
 use App\Jobs\ProcessBotResponse;
+use App\Models\TelegramChat;
+use App\Models\TelegramMessage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Mockery;
@@ -29,7 +31,11 @@ class BotHelpCommandTest extends TestCase
                     return is_string($value);
                 }),
             );
-        $command = new BotHelpCommand(1);
+        $telegramChatMock = Mockery::mock('alias:App\Models\TelegramChat');
+        $telegramChatMock->id = 1;
+        $telegramMessageMock = Mockery::mock('alias:App\Models\TelegramMessage');
+        $telegramMessageMock->telegramChat = $telegramChatMock;
+        $command = new BotHelpCommand($telegramMessageMock);
         $res = $command->execute();
         $this->assertTrue($res->isSuccess());
     }

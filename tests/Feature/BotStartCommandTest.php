@@ -28,7 +28,11 @@ class BotStartCommandTest extends TestCase
                     return is_string($value);
                 }),
             );
-        $command = new BotStartCommand(2);
+        $telegramChatMock = Mockery::mock('alias:App\Models\TelegramChat');
+        $telegramChatMock->id = 2;
+        $telegramMessageMock = Mockery::mock('alias:App\Models\TelegramMessage');
+        $telegramMessageMock->telegramChat = $telegramChatMock;
+        $command = new BotStartCommand($telegramMessageMock);
         $res = $command->execute();
         $this->assertTrue($res->isSuccess());
     }
