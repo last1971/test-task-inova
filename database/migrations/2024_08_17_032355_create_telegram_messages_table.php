@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('telegram_messages', function (Blueprint $table) {
             $table->bigInteger('id')->primary();
             $table->bigInteger('telegram_user_id');
-            $table->bigInteger('chat_id');
+            $table->bigInteger('telegram_chat_id');
             $table->text('text');
             $table->bigInteger('date');
             $table->timestamps();
 
             $table->foreign('telegram_user_id')->references('id')->on('telegram_users');
-            $table->foreign('chat_id')->references('id')->on('telegram_chats');
+            $table->foreign('telegram_chat_id')->references('id')->on('telegram_chats');
         });
     }
 

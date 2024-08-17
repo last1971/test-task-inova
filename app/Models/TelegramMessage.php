@@ -12,6 +12,8 @@ class TelegramMessage extends Model
 
     public $incrementing = false;
 
+    protected $fillable = ['id', 'telegram_chat_id', 'telegram_user_id', 'text', 'date'];
+
     public function telegramUser(): BelongsTo
     {
         return $this->belongsTo(TelegramUser::class);
