@@ -5,7 +5,10 @@ namespace App\Jobs;
 use App\Http\Requests\BotRequest;
 use App\ICommands\BotHelpCommand;
 use App\ICommands\BotStartCommand;
+use App\ICommands\CreateTelegramMessage;
 use App\Interfaces\ICommand;
+use App\Models\TelegramMessage;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -17,6 +20,9 @@ class ProcessBotRequest implements ShouldQueue
 {
     use Queueable;
 
+    public int $timeout = 120;
+    public int $tries = 5;
+
     /**
      * @var ICommand[]
      */
@@ -25,23 +31,18 @@ class ProcessBotRequest implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(private readonly array $botRequest)
+    public function __construct(private readonly int $id)
     {
         $this->botCommands['/help'] = BotHelpCommand::class;
-    }
-
-    public function middleware(): array
-    {
-        return [(new WithoutOverlapping($this->botRequest['message']['chat']['id']))
-            ->expireAfter(env('BOT_PROCESS_EXPIRE', 180))];
     }
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        $commandClass = $this->botCommands[$this->botRequest['message']['text']] ??  BotStartCommand::class;
-        $command = new $commandClass($this->botRequest['message']['chat']['id']);
-        $command->execute();
+       $telegramMessage = TelegramMessage::query()->with('telegramChat')->find($this->id);
+       $commandClass = $this->botCommands[$telegramMessage->text] ?? BotStartCommand::class;
+       $command = new $commandClass($telegramMessage);
+       $command->execute();
     }
 }
