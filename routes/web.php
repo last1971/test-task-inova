@@ -8,4 +8,5 @@ Route::get('/', function () {
     return 'ok';
 });
 
+// Telegram webhook route
 Route::post('/{token}', [BotController::class, 'update'])->where('token', env('BOT_PATH', ''));

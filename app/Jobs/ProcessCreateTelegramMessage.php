@@ -10,6 +10,9 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Process adding incoming telegram message and queuing the handler for this message
+ */
 class ProcessCreateTelegramMessage implements ShouldQueue
 {
     use Queueable;

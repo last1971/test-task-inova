@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Requests\BotRequest;
+use App\ICommands\BotConvertCommand;
 use App\ICommands\BotHelpCommand;
 use App\ICommands\BotStartCommand;
 use App\ICommands\CreateTelegramMessage;
@@ -17,6 +18,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Process command getting in telegram message
+ */
 class ProcessBotRequest implements ShouldQueue
 {
     use Queueable;
@@ -36,6 +40,7 @@ class ProcessBotRequest implements ShouldQueue
     {
         $this->botCommands['/help'] = BotHelpCommand::class;
         $this->botCommands['/start'] = BotStartCommand::class;
+        $this->botCommands['/convert'] = BotConvertCommand::class;
     }
     /**
      * Execute the job.
@@ -43,7 +48,7 @@ class ProcessBotRequest implements ShouldQueue
     public function handle(): void
     {
        $telegramMessage = TelegramMessage::query()->with('telegramChat', 'telegramUser')->find($this->id);
-       $commandClass = $this->botCommands[$telegramMessage->text];
+       $commandClass = $this->botCommands[$telegramMessage->text] ?? $telegramMessage->telegramNextCommand?->command;
        if ($commandClass) {
            $command = new $commandClass($telegramMessage);
            $command->execute();
