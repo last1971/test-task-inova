@@ -15,11 +15,17 @@ class TelegramUser extends Model
 
     protected $fillable = ['id', 'first_name', 'last_name', 'username', 'language_code', 'is_premium'];
 
+    /**
+     * @return HasMany
+     */
     public function telegramMessages(): HasMany
     {
         return $this->hasMany(TelegramMessage::class);
     }
 
+    /**
+     * @return HasOne
+     */
     public function telegramNexCommands(): HasOne
     {
         return $this->hasOne(TelegramNextCommand::class);

@@ -9,17 +9,27 @@ use App\Models\TelegramMessage;
 use App\Models\TelegramUser;
 use Exception;
 
+/**
+ * Add to database received telegram message
+ */
 class CreateTelegramMessage implements ICommand
 {
     public function __construct(private readonly array $telegramUpdate)
     {
     }
 
+    /**
+     * @param array $telegramUpdate
+     * @return self
+     */
     public static function create(array $telegramUpdate): self
     {
         return new self($telegramUpdate);
     }
 
+    /**
+     * @return CommandResult
+     */
     public function execute(): CommandResult
     {
         try {

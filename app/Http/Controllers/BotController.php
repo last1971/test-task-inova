@@ -7,6 +7,9 @@ use App\Jobs\ProcessCreateTelegramMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controller for get updates from Telegram
+ */
 class BotController extends Controller
 {
     /**

@@ -8,6 +8,9 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 
+/**
+ * Class for telegram sendMessage API
+ */
 class SendMessage implements ICommand
 {
     /**

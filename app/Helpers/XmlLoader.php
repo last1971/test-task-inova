@@ -4,6 +4,9 @@ namespace App\Helpers;
 
 use SimpleXMLElement;
 
+/**
+ * Class wrapper for simplexml_load_file
+ */
 class XmlLoader
 {
     /**

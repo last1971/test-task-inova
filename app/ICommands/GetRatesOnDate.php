@@ -10,6 +10,9 @@ use App\Models\ExchangeRate;
 use Carbon\Carbon;
 use Exception;
 
+/**
+ * Get rates on date from CBR API
+ */
 class GetRatesOnDate implements ICommand
 {
     public function __construct(private readonly string $date, private readonly XmlLoader $xmlLoader)
