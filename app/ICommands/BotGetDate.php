@@ -33,7 +33,7 @@ class BotGetDate implements ICommand
                 'command' => '',
                 'properties' => array_merge($nextCommand->properties, ['date' => $date->format('Y-m-d')]),
             ]);
-            ProcessGetRateOnDate::dispatch($this->telegramMessage);
+            ProcessGetRateOnDate::dispatch($this->telegramMessage->id);
         }
         return new CommandResult(true);
     }

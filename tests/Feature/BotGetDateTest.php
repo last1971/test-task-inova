@@ -12,6 +12,15 @@ use Tests\TestCase;
 
 class BotGetDateTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Инициализация мока или объекта
+        $this->mock = Mockery::mock('SomeClass');
+        $this->mock->shouldReceive('someMethod')
+            ->andReturn('default value');
+    }
     protected function tearDown(): void
     {
         Mockery::close();
@@ -28,6 +37,7 @@ class BotGetDateTest extends TestCase
 
         $telegramMessage = Mockery::mock('alias:App\Models\TelegramMessage');
         $telegramMessage->text = '11.01.2011';
+        $telegramMessage->id = 1;
         $telegramMessage->telegramNextCommand = $telegramNextCommand;
 
         $telegramChat = new stdClass();
@@ -35,7 +45,7 @@ class BotGetDateTest extends TestCase
         $telegramMessage->telegramChat = $telegramChat;
 
         $processGetRate = Mockery::mock('alias:App\Jobs\ProcessGetRateOnDate');
-        $processGetRate->shouldReceive('dispatch')->once()->with($telegramMessage);
+        $processGetRate->shouldReceive('dispatch')->once()->with(1);
 
         $processBotResponse = Mockery::mock('alias:App\Jobs\ProcessBotResponse');
         $processBotResponse->shouldNotHaveBeenCalled();
@@ -48,6 +58,7 @@ class BotGetDateTest extends TestCase
     {
         $telegramMessage = Mockery::mock('alias:App\Models\TelegramMessage');
         $telegramMessage->text = 'ABC';
+        $telegramMessage->id = 1;
 
         $telegramChat = new stdClass();
         $telegramChat->id = 2;
