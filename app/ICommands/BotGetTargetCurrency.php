@@ -24,7 +24,7 @@ class BotGetTargetCurrency implements ICommand
     {
         return BotGetCurrency::create(
             $this->telegramMessage,
-            BotConvertCommand::class, // попроавить
+            BotGetDate::class,
             'to_currency_id',
             'Введите дату (в формате ДД.ММ.ГГГГ):'
         )->execute();
