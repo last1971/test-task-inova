@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\ICommands\GetRatesFromDB;
+use App\ICommands\GetRatesOnDate;
 use App\Models\TelegramMessage;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -27,9 +28,23 @@ class ProcessGetRateOnDate implements ShouldQueue
      */
     public function handle(): void
     {
-        $telegramMessage = TelegramMessage::query()
-            ->with('telegramChat')->find($this->id);
+        $telegramMessage = TelegramMessage::query();
+            //->with('telegramChat')->find($this->id);
         $getRatesFromDB = new GetRatesFromDB($telegramMessage);
+        $res = $getRatesFromDB->execute();
+        if ($res->isSuccess()) {
+            ProcessBotResponse::dispatch($telegramMessage->telegramChat->id, $res->getMessage());
+            return;
+        }
+        $getRatesOnDate = GetRatesOnDate::create($telegramMessage->text);
+        $res = $getRatesOnDate->execute();
+        if (!$res->isSuccess()) {
+            ProcessBotResponse::dispatch(
+                $telegramMessage->telegramChat->id,
+                'Сервис получения курсов времеено не доступен, попробуйте позже'
+            );
+            return;
+        }
         $res = $getRatesFromDB->execute();
         ProcessBotResponse::dispatch($telegramMessage->telegramChat->id, $res->getMessage());
     }
