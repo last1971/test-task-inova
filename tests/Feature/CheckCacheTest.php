@@ -38,4 +38,5 @@ class CheckCacheTest extends TestCase
         $this->assertTrue($res->isSuccess());
         $this->assertEquals('test', $res->getMessage());
     }
+
 }

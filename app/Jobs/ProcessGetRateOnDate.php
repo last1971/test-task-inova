@@ -2,10 +2,7 @@
 
 namespace App\Jobs;
 
-use App\ICommands\CheckCache;
-use App\ICommands\CheckDateCommand;
-use App\ICommands\GetRatesFromDB;
-use App\ICommands\GetRatesOnDate;
+use App\ICommands\GetRatesCommand;
 use App\Models\TelegramMessage;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,7 +28,9 @@ class ProcessGetRateOnDate implements ShouldQueue
     public function handle(): void
     {
         $telegramMessage = TelegramMessage::query()->with('telegramChat')->find($this->id);
-        $checkDate = new CheckDateCommand($telegramMessage);
+        $command = new GetRatesCommand($telegramMessage);
+        $command->execute();
+        /**
         $res = $checkDate->execute();
         if (!$res->isSuccess()) {
             ProcessBotResponse::dispatch($telegramMessage->telegramChat->id, $res->getMessage());
@@ -60,5 +59,6 @@ class ProcessGetRateOnDate implements ShouldQueue
         }
         $res = $getRatesFromDB->execute();
         ProcessBotResponse::dispatch($telegramMessage->telegramChat->id, $res->getMessage());
+         */
     }
 }

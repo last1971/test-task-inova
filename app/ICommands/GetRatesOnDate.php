@@ -67,7 +67,10 @@ class GetRatesOnDate implements ICommand
             return new CommandResult(true);
         } catch (Exception $e) {
             Log::error('Ошибка обращения к ЦБ: ' . $e->getMessage());
-            return new CommandResult(false, $e->getMessage());
+            return new CommandResult(
+                false,
+                'Сервис получения курсов временно не доступен, попробуйте позже'
+            );
         }
     }
 }

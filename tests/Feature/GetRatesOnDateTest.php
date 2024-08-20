@@ -113,6 +113,9 @@ class GetRatesOnDateTest extends TestCase
         $getRatesOnDate = new GetRatesOnDate('2024-01-01', $xmlLoaderMock);
         $result = $getRatesOnDate->execute();
         $this->assertFalse($result->isSuccess());
-        $this->assertEquals('Error loading XML', $result->getMessage());
+        $this->assertEquals(
+            'Сервис получения курсов временно не доступен, попробуйте позже',
+            $result->getMessage()
+        );
     }
 }
