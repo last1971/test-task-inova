@@ -9,6 +9,7 @@ use App\Models\Currency;
 use App\Models\ExchangeRate;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Get rates on date from CBR API
@@ -65,7 +66,11 @@ class GetRatesOnDate implements ICommand
             ]);
             return new CommandResult(true);
         } catch (Exception $e) {
-            return new CommandResult(false, $e->getMessage());
+            Log::error('Ошибка обращения к ЦБ: ' . $e->getMessage());
+            return new CommandResult(
+                false,
+                'Сервис получения курсов временно не доступен, попробуйте позже'
+            );
         }
     }
 }
