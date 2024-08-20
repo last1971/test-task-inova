@@ -51,6 +51,18 @@ class GetRatesOnDate implements ICommand
                     'rate' => floatval(str_replace(',', '.', $valute->VunitRate)),
                 ]);
             }
+            Currency::query()->createOrFirst([
+                'id' => 'R01000',
+                'num_code' => '643',
+                'char_code' => 'RUB',
+                'name' => 'Russian rouble',
+            ]);
+            ExchangeRate::query()->updateOrCreate([
+                'currency_id' => 'R01000',
+                'date' => Carbon::parse($this->date)->format('Y-m-d'),
+            ], [
+                'rate' => 1,
+            ]);
             return new CommandResult(true);
         } catch (Exception $e) {
             return new CommandResult(false, $e->getMessage());

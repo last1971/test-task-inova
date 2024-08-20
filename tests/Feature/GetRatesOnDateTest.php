@@ -60,6 +60,15 @@ class GetRatesOnDateTest extends TestCase
                 'name' => 'Canadian Dollar',
             ])
             ->andReturn($currencyMock);
+        $currencyMock->shouldReceive('query->createOrFirst')
+            ->once()
+            ->with([
+                'id' => 'R01000',
+                'num_code' => '643',
+                'char_code' => 'RUB',
+                'name' => 'Russian rouble',
+            ])
+            ->andReturn($currencyMock);
         $exchangeRateMock = Mockery::mock('alias:App\Models\ExchangeRate');
         $exchangeRateMock->shouldReceive('query->updateOrCreate')
             ->once()
@@ -77,6 +86,15 @@ class GetRatesOnDateTest extends TestCase
                 'date' => Carbon::parse('2024-01-01')->format('Y-m-d'),
             ], [
                 'rate' => 2
+            ])
+            ->andReturn($exchangeRateMock);
+        $exchangeRateMock->shouldReceive('query->updateOrCreate')
+            ->once()
+            ->with([
+                'currency_id' => 'R01000',
+                'date' => Carbon::parse('2024-01-01')->format('Y-m-d'),
+            ], [
+                'rate' => 1
             ])
             ->andReturn($exchangeRateMock);
         $getRatesOnDate = new GetRatesOnDate('2024-01-01', $xmlLoaderMock);
