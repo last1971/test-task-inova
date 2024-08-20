@@ -28,8 +28,7 @@ class ProcessGetRateOnDate implements ShouldQueue
      */
     public function handle(): void
     {
-        $telegramMessage = TelegramMessage::query();
-            //->with('telegramChat')->find($this->id);
+        $telegramMessage = TelegramMessage::query()->with('telegramChat')->find($this->id);
         $getRatesFromDB = new GetRatesFromDB($telegramMessage);
         $res = $getRatesFromDB->execute();
         if ($res->isSuccess()) {
