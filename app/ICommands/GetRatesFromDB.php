@@ -8,6 +8,7 @@ use App\Models\Currency;
 use App\Models\ExchangeRate;
 use App\Models\TelegramMessage;
 use App\Models\TelegramNextCommand;
+use Illuminate\Support\Facades\Cache;
 
 class GetRatesFromDB implements ICommand
 {
@@ -21,19 +22,7 @@ class GetRatesFromDB implements ICommand
      */
     public function execute(): CommandResult
     {
-        $telegramNextCommand = $this->telegramMessage->telegramNextCommand;
-        $properties = $telegramNextCommand && isset($telegramNextCommand->properties)
-            ? (array) $telegramNextCommand->properties
-            : [];
-        if (
-            !isset($properties['date'])
-            ||
-            !isset($properties['from_currency_id'])
-            ||
-            !isset($properties['to_currency_id'])
-        ) {
-            return new CommandResult(false, 'Не предвиденная ошибка');
-        }
+        $properties = $this->telegramMessage->telegramNextCommand->properties;
         $fromCurrency = ExchangeRate::query()->firstWhere([
             'currency_id' => $properties['from_currency_id'],
             'date' => $properties['date'],
@@ -45,9 +34,12 @@ class GetRatesFromDB implements ICommand
         if (!$fromCurrency || !$toCurrency) {
             return new CommandResult(false, 'На заданную дату валютная пара отсутсвует');
         }
-        return new CommandResult(
-            true,
-            'Курс: ' . getRate($fromCurrency->rate, $toCurrency->rate),
+        $message = 'Курс: ' . getRate($fromCurrency->rate, $toCurrency->rate);
+        Cache::add(
+            'date=' . $properties['date'] . ';from_currency_id=' . $properties['from_currency_id'] .
+            ';to_currency_id=' . $properties['to_currency_id'],
+            $message
         );
+        return new CommandResult(true, $message);
     }
 }

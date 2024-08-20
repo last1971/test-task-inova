@@ -17,37 +17,6 @@ class GetRatesFromDBTest extends TestCase
         parent::tearDown();
     }
 
-    public function testHasNotTelegramNextCommand(): void
-    {
-        $telegramMessage = Mockery::mock('alias:App\Models\TelegramMessage');
-        $telegramMessage->telegramNextCommand = null;
-        $command = new GetRatesFromDB($telegramMessage);
-        $result = $command->execute();
-        $this->assertFalse($result->isSuccess());
-        $this->assertEquals('Не предвиденная ошибка', $result->getMessage());
-    }
-
-    public function testHasNotProperties(): void
-    {
-        $telegramMessage = Mockery::mock('alias:App\Models\TelegramMessage');
-        $telegramMessage->telegramNextCommand = new stdClass();
-        $command = new GetRatesFromDB($telegramMessage);
-        $result = $command->execute();
-        $this->assertFalse($result->isSuccess());
-        $this->assertEquals('Не предвиденная ошибка', $result->getMessage());
-    }
-
-    public function testHasNotDate(): void
-    {
-        $telegramMessage = Mockery::mock('alias:App\Models\TelegramMessage');
-        $telegramMessage->telegramNextCommand = new stdClass();
-        $telegramMessage->telegramNextCommand->properties = ['from_currency_id' => 1, 'to_currency_id' => 2];
-        $command = new GetRatesFromDB($telegramMessage);
-        $result = $command->execute();
-        $this->assertFalse($result->isSuccess());
-        $this->assertEquals('Не предвиденная ошибка', $result->getMessage());
-    }
-
     public function testHasNotToCurrency(): void
     {
         $telegramMessage = Mockery::mock('alias:App\Models\TelegramMessage');
@@ -88,6 +57,12 @@ class GetRatesFromDBTest extends TestCase
 
     public function testExecuteSuccess(): void
     {
+        $cache = Mockery::mock('alias:Illuminate\Support\Facades\Cache');
+        $cache->shouldReceive('add')
+            ->once()
+            ->with('date=2020-01-11;from_currency_id=1;to_currency_id=2', 'Курс: 1.000000')
+            ->andReturn('test');
+
         $telegramMessage = Mockery::mock('alias:App\Models\TelegramMessage');
         $telegramMessage->telegramNextCommand = new stdClass();
         $telegramMessage->telegramNextCommand->properties = [

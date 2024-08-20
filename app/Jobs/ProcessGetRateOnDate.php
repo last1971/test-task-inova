@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\ICommands\CheckCache;
+use App\ICommands\CheckDateCommand;
 use App\ICommands\GetRatesFromDB;
 use App\ICommands\GetRatesOnDate;
 use App\Models\TelegramMessage;
@@ -29,6 +31,18 @@ class ProcessGetRateOnDate implements ShouldQueue
     public function handle(): void
     {
         $telegramMessage = TelegramMessage::query()->with('telegramChat')->find($this->id);
+        $checkDate = new CheckDateCommand($telegramMessage);
+        $res = $checkDate->execute();
+        if (!$res->isSuccess()) {
+            ProcessBotResponse::dispatch($telegramMessage->telegramChat->id, $res->getMessage());
+            return;
+        }
+        $checkCache = new CheckCache($telegramMessage);
+        $res = $checkCache->execute();
+        if ($res->isSuccess()) {
+            ProcessBotResponse::dispatch($telegramMessage->telegramChat->id, $res->getMessage());
+            return;
+        }
         $getRatesFromDB = new GetRatesFromDB($telegramMessage);
         $res = $getRatesFromDB->execute();
         if ($res->isSuccess()) {
