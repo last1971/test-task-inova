@@ -4,13 +4,14 @@ namespace Tests\Feature;
 
 use App\ICommands\BotConvertCommand;
 use App\ICommands\BotGetBaseCurrency;
+use App\ICommands\StartConvertCommand;
 use App\Models\TelegramMessage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Mockery;
 use Tests\TestCase;
 
-class BotConvertCommandTest extends TestCase
+class StartConvertCommandTest extends TestCase
 {
     protected function tearDown(): void
     {
@@ -33,17 +34,12 @@ class BotConvertCommandTest extends TestCase
                 'command' => BotGetBaseCurrency::class,
                 'properties' => [],
             ]);
-        $processBotResponse = Mockery::mock('alias:App\Jobs\ProcessBotResponse');
-        $processBotResponse
-            ->shouldReceive('dispatch')
-            ->once()
-            ->with(1, "Введите базовую валюту (USD, EUR, RUB,  и т.д.):");
         $someObjectWithId = new \stdClass();
         $someObjectWithId->id = 1;
         $telegramMessage = Mockery::mock('alias:App\Models\TelegramMessage');
         $telegramMessage->telegramChat = $someObjectWithId;
         $telegramMessage->telegramUser = $someObjectWithId;
-        $res = (new BotConvertCommand($telegramMessage))->execute();
+        $res = (new StartConvertCommand($telegramMessage))->execute();
         $this->assertTrue($res->isSuccess());
     }
 }

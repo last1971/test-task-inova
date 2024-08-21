@@ -6,12 +6,19 @@ use App\Helpers\CommandResult;
 use App\Interfaces\ICommand;
 use App\Models\TelegramMessage;
 
+/**
+ * Check that properties is set
+ */
 class CheckDateCommand implements ICommand
 {
     public function __construct(private readonly TelegramMessage $telegramMessage)
     {
 
     }
+
+    /**
+     * @return CommandResult
+     */
     public function execute(): CommandResult
     {
         $telegramNextCommand = $this->telegramMessage->telegramNextCommand;

@@ -7,12 +7,19 @@ use App\Interfaces\ICommand;
 use App\Models\TelegramMessage;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Check cache command
+ */
 class CheckCache implements ICommand
 {
     public function __construct(private readonly TelegramMessage $telegramMessage)
     {
 
     }
+
+    /**
+     * @return CommandResult
+     */
     public function execute(): CommandResult
     {
         $properties = $this->telegramMessage->telegramNextCommand->properties;

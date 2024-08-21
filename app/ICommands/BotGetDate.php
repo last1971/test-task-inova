@@ -9,9 +9,11 @@ use App\Jobs\ProcessGetRateOnDate;
 use App\Models\TelegramMessage;
 use DateTime;
 
+/**
+ * Get date command
+ */
 class BotGetDate implements ICommand
 {
-
     public function __construct(private readonly TelegramMessage $telegramMessage)
     {
     }
