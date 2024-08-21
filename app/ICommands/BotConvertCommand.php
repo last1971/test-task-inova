@@ -22,19 +22,17 @@ class BotConvertCommand implements ICommand
      */
     public function execute(): CommandResult
     {
-        TelegramNextCommand::query()->updateOrCreate(
-            [
-                'telegram_chat_id' => $this->telegramMessage->telegramChat->id,
-                'telegram_user_id' => $this->telegramMessage->telegramUser->id,
-            ],
-            [
-                'command' => BotGetBaseCurrency::class,
-                'properties' => [],
-            ]
+        $rateLimit = new RateLimitCommand(
+            'rate-limit-' . $this->telegramMessage->telegramChat->id . '-' . $this->telegramMessage->telegramUser->id,
+            'Вы перевысили количество запросов  в минуту',
+            1,
+            60,
         );
-        ProcessBotResponse::dispatch(
-            $this->telegramMessage->telegramChat->id, "Введите базовую валюту (USD, EUR, RUB,  и т.д.):"
+        $command = new InterruptionChainCommand(
+            [$rateLimit, new StartConvertCommand($this->telegramMessage)], [false, true]
         );
+        $res = $command->execute();
+        ProcessBotResponse::dispatch($this->telegramMessage->telegramChat->id, $res->getMessage());
         return new CommandResult(true);
     }
 }

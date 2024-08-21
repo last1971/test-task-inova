@@ -10,6 +10,9 @@ use App\Models\TelegramMessage;
 use App\Models\TelegramNextCommand;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Get Rates from DB
+ */
 class GetRatesFromDB implements ICommand
 {
     public function __construct(private readonly TelegramMessage $telegramMessage)

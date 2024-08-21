@@ -2,7 +2,11 @@
 
 namespace App\Jobs;
 
-use App\ICommands\GetRatesCommand;
+use App\ICommands\CheckCache;
+use App\ICommands\CheckDateCommand;
+use App\ICommands\GetRatesFromDB;
+use App\ICommands\GetRatesOnDate;
+use App\ICommands\InterruptionChainCommand;
 use App\Models\TelegramMessage;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -10,6 +14,9 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Process for chain of commands to getting rate
+ */
 class ProcessGetRateOnDate implements ShouldQueue
 {
     use Queueable;
@@ -28,37 +35,23 @@ class ProcessGetRateOnDate implements ShouldQueue
     public function handle(): void
     {
         $telegramMessage = TelegramMessage::query()->with('telegramChat')->find($this->id);
-        $command = new GetRatesCommand($telegramMessage);
-        $command->execute();
-        /**
-        $res = $checkDate->execute();
-        if (!$res->isSuccess()) {
-            ProcessBotResponse::dispatch($telegramMessage->telegramChat->id, $res->getMessage());
-            return;
-        }
-        $checkCache = new CheckCache($telegramMessage);
-        $res = $checkCache->execute();
-        if ($res->isSuccess()) {
-            ProcessBotResponse::dispatch($telegramMessage->telegramChat->id, $res->getMessage());
-            return;
-        }
         $getRatesFromDB = new GetRatesFromDB($telegramMessage);
-        $res = $getRatesFromDB->execute();
-        if ($res->isSuccess()) {
-            ProcessBotResponse::dispatch($telegramMessage->telegramChat->id, $res->getMessage());
-            return;
-        }
-        $getRatesOnDate = GetRatesOnDate::create($telegramMessage->text);
-        $res = $getRatesOnDate->execute();
-        if (!$res->isSuccess()) {
-            ProcessBotResponse::dispatch(
-                $telegramMessage->telegramChat->id,
-                'Сервис получения курсов времеено не доступен, попробуйте позже'
-            );
-            return;
-        }
-        $res = $getRatesFromDB->execute();
+        $commands = [
+            new CheckDateCommand($telegramMessage),
+            new CheckCache($telegramMessage),
+            $getRatesFromDB,
+            GetRatesOnDate::create($telegramMessage->text),
+            $getRatesFromDB,
+        ];
+        $results = [
+            false,
+            true,
+            true,
+            false,
+            true,
+        ];
+        $command = new InterruptionChainCommand($commands, $results);
+        $res = $command->execute();
         ProcessBotResponse::dispatch($telegramMessage->telegramChat->id, $res->getMessage());
-         */
     }
 }
