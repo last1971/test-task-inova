@@ -4,7 +4,7 @@
 - PHP8.3
 - MYSQL8.0
 - Redis
-Возсожна настройка с помощью Docker. 
+Возможна настройка с помощью Docker. 
 Для развертывния последнего варианта проделайте следующие шаги
 1.  git clone https://github.com/last1971/test-task-inova
 2. cd ./test-task-inova
@@ -16,9 +16,11 @@
 8. BOT_TOKEN - TelegramBot token
 9. BOT_SECRET_TOKEN - Дополнительны токен передаваемый вебхуком, для авторизиаци входящего соединения
 10. BOT_PROCESS_EXPIRE - время в секундах, сброса процесса отправки сообщения, если он не сработал
-11. Через GET запрос настройте webhook https://api.telegram.org/bot{BOT_TOKEN}/setWebhook?url=https://
+11. BOT_LIMIT - ограничение на количество запростов команды /convert
+12. BOT_INTERVAL - время в секундах для ограничения
+13. Через GET запрос настройте webhook https://api.telegram.org/bot{BOT_TOKEN}/setWebhook?url=https://
     {Ваш домен}/ravbot&secret_token={BOT_SECRET_TOKEN}
-11. php artisan migrate
-12. php artisan db:seed
-13. php artisan queue:work -v (для запуска обработчика очередей)
-14. Подключиться к боту и отправить /start
+14. php artisan migrate
+15. php artisan db:seed
+16. php artisan queue:work -v (для запуска обработчика очередей)
+17. Подключиться к боту и отправить /start

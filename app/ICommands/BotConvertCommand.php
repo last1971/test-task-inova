@@ -25,8 +25,8 @@ class BotConvertCommand implements ICommand
         $rateLimit = new RateLimitCommand(
             'rate-limit-' . $this->telegramMessage->telegramChat->id . '-' . $this->telegramMessage->telegramUser->id,
             'Вы перевысили количество запросов  в минуту',
-            1,
-            60,
+            env('BOT_LIMIT', 10),
+            env('BOT_INTERVAL', 60),
         );
         $command = new InterruptionChainCommand(
             [$rateLimit, new StartConvertCommand($this->telegramMessage)], [false, true]
